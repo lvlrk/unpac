@@ -1,0 +1,5 @@
+run = "./unpac --help"
+compile = "make"
+
+[nix]
+channel = "stable-22_11"

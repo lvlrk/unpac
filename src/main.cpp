@@ -70,10 +70,17 @@ int main(int argc, char **argv) {
 #ifdef DEBUG
 int main() {
     bytestream bs;
-    bs.from_file("resident.arc");
+    bs.from_file("m00a_t_icon01.brres");
 
-    fmt::print("{}\n", bs.rread(4));
+	bs.seek(8);
+	int size = bs.read_int<int>();
+	fmt::print("{}\n", size);
+	bs.seek(-4, bs.cur);
+	bs.endianness(guess_endianness(reinterpret_cast<char*>(&size), sizeof(size)));
+	//size = bs.read_int<int>();
 
+	fmt::print("{}\n", size);
+	
     return 0;
 }
 #endif

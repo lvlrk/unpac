@@ -16,6 +16,7 @@ public:
     void from_file(const std::string& t_filename);
     void from_ifstream(std::ifstream& t_ifstream);
     void from_bytestream(bytestream bs, int t_pos, int size);
+	void from_ptr(const char *ptr, int size);
     void close();
 
     void to_file(const std::string& t_filename = "");

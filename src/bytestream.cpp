@@ -126,6 +126,14 @@ void bytestream::from_bytestream(bytestream bs, int t_pos, int size) {
     m_filename = bs.name();
 }
 
+void bytestream::from_ptr(const char *ptr, int size) {
+	m_streambuf.resize(size);
+	
+	std::memcpy(&m_streambuf[0], ptr, size);
+
+	m_is_open = true;
+}
+
 void bytestream::close() {
     m_streambuf.clear();
     m_is_open = false;
