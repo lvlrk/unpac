@@ -12,6 +12,12 @@ build: $(SRC)
 $(TARGET): build
 	$(CXX) $(LDFLAGS) *.o -o $(TARGET)
 
+install:
+	cp $(TARGET) /bin
+
+uninstall:
+	rm -f /bin/$(TARGET)
+
 clean:
 	rm -f *.o $(TARGET)
 
