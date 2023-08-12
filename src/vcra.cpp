@@ -66,7 +66,8 @@ int Vcra::WriteToFile(const std::string& filename) {
         tmp = members[i].data.size();
         out.write(reinterpret_cast<char*>(&tmp), 4);
 
-        out.write(members[i].name.c_str(), 56);
+        out.write(members[i].name.c_str(), members[i].name.size());
+        for(int j = 0; j < 56 - members[i].name.size(); j++) out.put(0);
     }
 
     int tmp2, tmp3;

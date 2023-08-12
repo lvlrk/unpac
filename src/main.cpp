@@ -224,14 +224,13 @@ int main(int argc, char **argv) {
 
                 continue;
             } else {
-                std::cout << f << '\n';
                 if(S_ISREG(st.st_mode)) {
                     if(member.ReadFromFile(f)) goto member_read;
                     arc.members.push_back(member);
                 } else if(S_ISDIR(st.st_mode)) {
                     for (std::filesystem::recursive_directory_iterator i(f), end; i != end; ++i) {
                         if (!is_directory(i->path())) {
-                            if(member.ReadFromFile(std::string(i->path().filename()))) goto member_read;
+                            if(member.ReadFromFile(std::string(i->path()))) goto member_read;
                             arc.members.push_back(member);
                         }
                     }
