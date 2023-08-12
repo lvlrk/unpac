@@ -12,13 +12,13 @@ build: $(SRC)
 $(TARGET): build
 	$(CXX) $(LDFLAGS) *.o -o $(TARGET)
 
-install:
+install: all
 	cp $(TARGET) /bin
 
-uninstall:
+uninstall: all
 	rm -f /bin/$(TARGET)
 
 clean:
 	rm -f *.o $(TARGET)
 
-.PHONY: clean all
+.PHONY: clean all install uninstall
