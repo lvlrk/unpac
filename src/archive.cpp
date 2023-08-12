@@ -1,10 +1,13 @@
+#include <iostream>
 #include <fstream>
 #include "archive.h"
+#include "util.h"
 
 int Archive::Member::ReadFromFile(const std::string& filename) {
-    name = filename;
+    name = GetFileFromPath(filename);
+    data.clear();
 
-    std::ifstream in(name, std::ios::ate);
+    std::ifstream in(filename, std::ios::ate);
 
     data.resize(in.tellg());
     in.seekg(0, in.beg);
@@ -15,20 +18,9 @@ int Archive::Member::ReadFromFile(const std::string& filename) {
 }
 
 int Archive::Member::WriteToFile(const std::string& filename) {
-    if(IsDataBad()) return 1;
-
     std::ofstream out(filename);
 
-    if(!isCompressed || compressionType == COM_NONE) {
-        out.write(reinterpret_cast<char*>(&data[0]), data.size());
-    } else {
-        switch(compressionType) {
-        }
-    }
+    out.write(reinterpret_cast<char*>(&data[0]), data.size());
 
     return 0;
-}
-
-bool Archive::Member::IsDataBad() {
-    return (!data.size() || !compressedData.size());
 }

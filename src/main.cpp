@@ -1,15 +1,25 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <filesystem>
+#include <sys/stat.h>
 #include "lzss.h"
 #include "util.h"
+#include "vcra.h"
 
 int main(int argc, char **argv) {
     std::string file = "";
+    std::vector<std::string> files;
     std::string arg = "";
 
     bool compress = false;
     bool decompress = false;
+    bool create = false;
+    bool extract = false;
+    bool extractAll = false;
+    bool list = false;
+    bool append = false;
+    bool remove = false;
 
     std::ofstream out;
     std::ifstream in;
@@ -27,6 +37,11 @@ int main(int argc, char **argv) {
                 std::cout << " -v, --version      output version information and exit\n";
                 std::cout << " -z, --compress     compress file to lzs\n";
                 std::cout << " -d, --decompress   decompress file from lzs\n";
+                std::cout << " -c, --create       create an archive\n";
+                std::cout << " -x, --extract      extract files from an archive\n";
+                std::cout << " -t, --list         list files from an archive\n";
+                std::cout << " -a, --append       append files to an archive\n";
+                std::cout << " -r, --remove       remove files from an archive\n\n";
                 std::cout << "enjoy this bangin' modding tool\n";
 
                 return 0;
@@ -40,10 +55,20 @@ int main(int argc, char **argv) {
                 std::cout << "# will compress myfile to myfile.lzs\n";
                 std::cout << "unpac -z myfile\n";
 
+                std::cout << "# unpac -c [archive] {file...} or {dir...}\n";
+                std::cout << "# will create myfile.arc from file1 and file2\n";
+                std::cout << "unpac -c myfile.arc file1 file2\n\n";
+
+                std::cout << "# unpac -x [archive] {file...}\n";
+                std::cout << "# extract only file1 from myfile.arc\n";
+                std::cout << "unpac -x myfile.arc file1\n";
+                std::cout << "# extract all files from myfile.arc\n";
+                std::cout << "unpac -x myfile.arc\n";
+
                 return 0;
             } else if(arg == "-v" || arg == "--version") {
-                std::cout << "unpac-1.0\n";
-                std::cout << "got them compression tools\n";
+                std::cout << "unpac-1.1\n";
+                std::cout << "got them archive tools now too\n";
 
                 return 0;
             } else if(arg == "-z" || arg == "--compress") {
@@ -58,12 +83,64 @@ int main(int argc, char **argv) {
 
                     decompress = true;
                 } else goto missing_argument;
+            } else if(arg == "-c" || arg == "--create") {
+                if(argv[i + 1]) {
+                    file = argv[++i];
+
+                    create = true;
+
+                    int j = i + 1;
+                    while(argv[j]) {
+                        if(argv[j][0] != '-') files.push_back(argv[j++]);
+                        else break;
+                    }
+                } else goto missing_argument;
+            } else if(arg == "-x" || arg == "--extract") {
+                if(argv[i + 1]) {
+                    file = argv[++i];
+
+                    extract = true;
+
+                    int j = i + 1;
+                    while(argv[j]) {
+                        if(argv[j][0] != '-') files.push_back(argv[j++]);
+                        else break;
+                    }
+
+                    if(j == i + 1) extractAll = true;
+                } else goto missing_argument;
+            } else if(arg == "-t" || arg == "--list") {
+                if(argv[i + 1]) {
+                    file = argv[++i];
+
+                    list = true;
+                } else goto missing_argument;
+            } else if(arg == "-a" || arg == "--append") {
+                file = argv[++i];
+
+                append = true;
+
+                int j = i + 1;
+                while(argv[j]) {
+                    if(argv[j][0] != '-') files.push_back(argv[j++]);
+                    else break;
+                }
+            } else if(arg == "-r" || arg == "--remove") {
+                file = argv[++i];
+
+                remove = true;
+
+                int j = i + 1;
+                while(argv[j]) {
+                    if(argv[j][0] != '-') files.push_back(argv[j++]);
+                    else break;
+                }
             }
 
             i++;
         }
     } else {
-        std::cerr << "Usage: unpac [-vzd]\n";
+        std::cerr << "Usage: unpac [-vzdcxtar]\n";
         std::cerr << "       unpac --help\n";
         std::cerr << "       unpac --examples\n";
 
@@ -136,6 +213,99 @@ int main(int argc, char **argv) {
 
         out.close();
     }
+    if(create) {
+        Vcra arc;
+        Archive::Member member;
+
+        struct stat st;
+        for(const std::string& f: files) {
+            if(stat(f.c_str(), &st) == -1) {
+                std::cerr << "unpac error: bad stat for " << f << '\n';
+
+                continue;
+            } else {
+                std::cout << f << '\n';
+                if(S_ISREG(st.st_mode)) {
+                    if(member.ReadFromFile(f)) goto member_read;
+                    arc.members.push_back(member);
+                } else if(S_ISDIR(st.st_mode)) {
+                    for (std::filesystem::recursive_directory_iterator i(f), end; i != end; ++i) {
+                        if (!is_directory(i->path())) {
+                            if(member.ReadFromFile(std::string(i->path().filename()))) goto member_read;
+                            arc.members.push_back(member);
+                        }
+                    }
+                }
+            }
+        }
+
+        arc.WriteToFile(file);
+    }
+    if(extract) {
+        Vcra arc;
+
+        if(arc.ReadFromFile(file)) goto vcra_read;
+
+        if(extractAll) {
+            std::string outdir = RemoveAllExtensions(file);
+            mkdir(outdir.c_str(), 0755);
+
+            for(Archive::Member& member: arc.members) {
+                if(member.WriteToFile(outdir + '/' + member.name)) {
+                    std::cerr << "unpac error: bad write\n";
+                }
+            }
+        } else {
+            for(const std::string& f: files) {
+                for(Archive::Member& member: arc.members) {
+                    if(f == member.name) {
+                        if(member.WriteToFile(member.name)) {
+                            std::cerr << "unpac error: bad write\n";
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(list) {
+        Vcra arc;
+
+        if(arc.ReadFromFile(file)) goto vcra_read;
+
+        for(const Archive::Member& member: arc.members) {
+            std::cout << member.name << '\n';
+        }
+    }
+    if(append) {
+        Vcra arc;
+
+        if(arc.ReadFromFile(file)) goto vcra_read;
+
+        Archive::Member member;
+
+        for(const std::string& f: files) {
+            member.ReadFromFile(f);
+
+            arc.members.push_back(member);
+        }
+
+        if(arc.WriteToFile(file)) goto vcra_write;
+    }
+    if(remove) {
+        Vcra arc;
+
+        if(arc.ReadFromFile(file)) goto vcra_read;
+
+        for(int i = 0; i < arc.members.size(); i++) {
+            for(const std::string& f: files) {
+                if(arc.members[i].name == f) {
+                    arc.members.erase(arc.members.begin() + i);
+                }
+            }
+        }
+
+        if(arc.WriteToFile(file)) goto vcra_write;
+    }
 
     return 0;
 
@@ -147,6 +317,21 @@ open:
 
 missing_argument:
     std::cerr << "unpac error: missing argument to " << arg << '\n';
+
+    return 1;
+
+vcra_read:
+    std::cerr << "unpac error: bad vcra read\n";
+
+    return 1;
+
+vcra_write:
+    std::cerr << "unpac error: bad vcra write\n";
+
+    return 1;
+
+member_read:
+    std::cerr << "unpac error: bad read\n";
 
     return 1;
 }
