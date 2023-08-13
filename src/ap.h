@@ -42,7 +42,5 @@ private:
     // all option's arguments are found
     bool ParseOptArgs(Opt& opt, int argIndex);
 
-    int argc;
-    char **argv;
     std::vector<std::string> args;
 };

@@ -7,9 +7,7 @@ Opt::Opt(const std::string& nLong, char nShort, int argCount):
     nShort{nShort},
 argCount{argCount} {}
 
-Parser::Parser(int argc, char **argv):
-    argc{argc},
-argv{argv} {
+Parser::Parser(int argc, char **argv) {
     args.resize(argc - 1);
 
     for(int i = 1; i < argc; i++) args.push_back(argv[i]);
