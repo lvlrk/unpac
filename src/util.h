@@ -6,12 +6,12 @@
 #include <unistd.h>
 
 #define mkdir(name) _mkdir
-#define DIRSEP '\\'
+#define DIRSEP "\\"
 #else
 #include <sys/stat.h>
 
 #define mkdir(name) mkdir(name, 0755)
-#define DIRSEP '/'
+#define DIRSEP "/"
 #endif
 
 const std::string RemoveExtension(const std::string& filename, const std::string& extension);

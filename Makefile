@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-O2 -Ilib/fmt/include -Ilib/raylib/src -Ilib/raygui/src
+CXXFLAGS=-O2 -Ilib/fmt/include -Ilib/raylib/src -Ilib/raygui/src -Wno-narrowing -Wno-enum-compare
 LDFLAGS=-lfmt -lraylib
 SRC=src/util.cpp src/vcra.cpp src/ap.cpp src/app.cpp \
 src/archive.cpp src/error.cpp src/lzss.cpp src/main.cpp \
