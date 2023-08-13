@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
                 std::cout << " -c, --create       create an archive\n";
                 std::cout << " -x, --extract      extract files from an archive\n";
                 std::cout << " -t, --list         list files from an archive\n";
-                std::cout << " -a, --append       append files to an archive\n";
+                std::cout << " -a, --add          add files to an archive\n";
                 std::cout << " -r, --remove       remove files from an archive\n\n";
                 std::cout << "enjoy this bangin' modding tool\n";
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 
                     list = true;
                 } else goto missing_argument;
-            } else if(arg == "-a" || arg == "--append") {
+            } else if(arg == "-a" || arg == "--add") {
                 file = argv[++i];
 
                 append = true;
@@ -285,7 +285,14 @@ int main(int argc, char **argv) {
         for(const std::string& f: files) {
             member.ReadFromFile(f);
 
-            arc.members.push_back(member);
+            bool found = false;
+            for(int i = 0; i < arc.members.size(); i++) {
+                if(arc.members[i].name == f) {
+                    found = true;
+                    arc.members[i].ReadFromFile(f);
+                }
+            }
+            if(!found) arc.members.push_back(member);
         }
 
         if(arc.WriteToFile(file)) goto vcra_write;
