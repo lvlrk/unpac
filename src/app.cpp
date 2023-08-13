@@ -15,8 +15,6 @@ App::App(int argc, char **argv):
     argv{argv} {}
 
 int App::Main() {
-    if(argc < 2) return Usage();
-
     Parser argParser(argc, argv);
 
     Opt helpOpt("help", 0);
@@ -29,6 +27,7 @@ int App::Main() {
     Opt listOpt("list", 't', 1);
     Opt addOpt("add", 'a', AC_VARI);
     Opt removeOpt("remove", 'r', AC_VARI);
+    Opt usageOpt("usage", 0);
 
     argParser.opts.push_back(helpOpt);
     argParser.opts.push_back(examplesOpt);
@@ -40,6 +39,7 @@ int App::Main() {
     argParser.opts.push_back(listOpt);
     argParser.opts.push_back(addOpt);
     argParser.opts.push_back(removeOpt);
+    argParser.opts.push_back(usageOpt);
 
     argParser.Parse();
 
@@ -114,6 +114,9 @@ int App::Main() {
             removeOpt.args.erase(removeOpt.args.begin());
             if(Remove(tmp, removeOpt.args)) return 1;
         }
+    }
+    if(usageOpt.set) {
+        return Usage();
     }
 
     return 0;
@@ -352,17 +355,19 @@ int App::Remove(const std::string& filename, const std::vector<std::string>& nam
 }
 
 int App::Usage() {
-    std::cerr << "Usage: unpac [-vzdcxtar]\n";
-    std::cerr << "       unpac --help\n";
-    std::cerr << "       unpac --examples\n";
+    std::cout << "Usage: unpac [-vzdcxtar]\n";
+    std::cout << "       unpac --help\n";
+    std::cout << "       unpac --examples\n";
+    std::cout << "       unpac --usage\n";
 
-    return 1;
+    return 0;
 }
 
 void App::Help() {
     std::cout << "Usage: unpac [option...] [file...]\n\n";
     std::cout << "     --help         print this help and exit\n";
     std::cout << "     --examples     print common usage examples and exit\n";
+    std::cout << "     --usage        print default usage and exit\n";
     std::cout << " -v, --version      output version information and exit\n";
     std::cout << " -z, --compress     compress file to lzs\n";
     std::cout << " -d, --decompress   decompress file from lzs\n";
