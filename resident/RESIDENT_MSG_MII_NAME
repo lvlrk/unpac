@@ -1,0 +1,9 @@
+----------------,説明,英語,日本語,ドイツ語,スペイン語,フランス語,イタリア語
+eMII_DEFAULT_1,黒色男,Guest A,ゲスト A,Guest A,Guest A,Guest A,Guest A
+eMII_DEFAULT_2,白色男,Guest B,ゲスト B,Guest B,Guest B,Guest B,Guest B
+eMII_DEFAULT_3,黄色男,Guest C,ゲスト C,Guest C,Guest C,Guest C,Guest C
+eMII_DEFAULT_4,褐色女,Guest D,ゲスト D,Guest D,Guest D,Guest D,Guest D
+eMII_DEFAULT_5,白色女,Guest E,ゲスト E,Guest E,Guest E,Guest E,Guest E
+eMII_DEFAULT_6,黒髪女,Guest F,ゲスト F,Guest F,Guest F,Guest F,Guest F
+このCSVの文字コードはUTF-8であること！！,名前は１０文字以内！
+使用文字もMiiで使える文字であること！

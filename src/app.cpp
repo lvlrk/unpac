@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <algorithm>
 #include <sys/stat.h>
 #include "app.h"
 #include "util.h"
@@ -205,6 +206,18 @@ int App::Decompress(const std::string& filename) {
 int App::Create(const std::string& filename, const std::vector<std::string> names) {
     Vcra arc;
     Archive::Member member;
+    std::vector<std::string> arcNames;
+    bool exists = false;
+
+    std::ifstream in(filename);
+    if(in.is_open()) {
+        if(arc.ReadFromFile(filename)) return VcraReadError(filename);
+        exists = true;
+
+        for(const Archive::Member& m: arc.members) arcNames.push_back(m.name);
+        arc.members.clear();
+        arc.members.resize(arcNames.size());
+    }
 
     struct stat st;
     for(const std::string& name: names) {
@@ -217,14 +230,31 @@ int App::Create(const std::string& filename, const std::vector<std::string> name
                 if(member.ReadFromFile(name))
                     return VcraMemberReadError(name);
 
-                arc.members.push_back(member);
+                if(exists) {
+                    auto it = std::find(arcNames.begin(), arcNames.end(), member.name);
+                    if(it != arcNames.end()) {
+                        int idx = it - arcNames.begin();
+                        arc.members[idx] = member;
+                    }
+                } else {
+                    arc.members.push_back(member);
+                }
+
             } else if(S_ISDIR(st.st_mode)) {
                 for (std::filesystem::recursive_directory_iterator i(name), end; i != end; ++i) {
                     if (!is_directory(i->path())) {
                         if(member.ReadFromFile(std::string(i->path())))
                             return VcraMemberReadError(std::string(i->path()));
 
-                        arc.members.push_back(member);
+                        if(exists) {
+                            auto it = std::find(arcNames.begin(), arcNames.end(), member.name);
+                            if(it != arcNames.end()) {
+                                int idx = it - arcNames.begin();
+                                arc.members[idx] = member;
+                            }
+                        } else {
+                            arc.members.push_back(member);
+                        }
                     }
                 }
             }
