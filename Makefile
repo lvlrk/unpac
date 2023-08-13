@@ -1,8 +1,14 @@
 CXX=g++
-CXXFLAGS=-O2 -std=c++2b
+CXXFLAGS=-O2
 LDFLAGS=
-SRC=src/*.cpp
+SRC=src/util.cpp src/vcra.cpp src/ap.cpp src/app.cpp \
+src/archive.cpp src/error.cpp src/lzss.cpp src/main.cpp
 TARGET=unpac
+
+ifeq ($(OS),Windows_NT)
+TARGET=unpac.exe
+CXXFLAGS+=-static-libstdc++ -Ilib/fmt/include
+endif
 
 all: $(TARGET)
 
