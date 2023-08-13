@@ -1,5 +1,4 @@
 #include <iostream>
-#include "fmt/core.h"
 #include "ap.h"
 
 Opt::Opt(const std::string& nLong, char nShort, int argCount):

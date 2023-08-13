@@ -246,8 +246,8 @@ int App::Create(const std::string& filename, const std::vector<std::string> name
             } else if(S_ISDIR(st.st_mode)) {
                 for (std::filesystem::recursive_directory_iterator i(name), end; i != end; ++i) {
                     if (!is_directory(i->path())) {
-                        if(member.ReadFromFile(std::string(i->path())))
-                            return VcraMemberReadError(std::string(i->path()));
+                        if(member.ReadFromFile(i->path().string()))
+                            return VcraMemberReadError(i->path().string());
 
                         if(exists) {
                             auto it = std::find(arcNames.begin(), arcNames.end(), member.name);
@@ -401,6 +401,6 @@ void App::Examples() {
 }
 
 void App::Version() {
-    std::cout << "unpac-1.3\n";
-    std::cout << "added epic arg parsing\n";
+    std::cout << "unpac-1.4\n";
+    std::cout << "full windows support!\n";
 }

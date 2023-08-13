@@ -5,7 +5,7 @@
 #if (_WIN32 || _WIN64)
 #include <unistd.h>
 
-#define mkdir(name) _mkdir
+#define _mkdir(name) mkdir(name)
 #define DIRSEP "\\"
 #else
 #include <sys/stat.h>
