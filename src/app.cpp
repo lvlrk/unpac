@@ -273,10 +273,10 @@ int App::Extract(const std::string& filename, const std::vector<std::string>& fi
 
     if(filenames.size() == 0) {
         std::string outdir = RemoveAllExtensions(filename);
-        mkdir(outdir.c_str(), 0755);
+        mkdir(outdir.c_str());
 
         for(Archive::Member& member: arc.members) {
-            std::string tmp = outdir + '/' + member.name;
+            std::string tmp = outdir + DIRSEP + member.name;
             if(member.WriteToFile(tmp))
                 return VcraMemberWriteError(tmp);
         }

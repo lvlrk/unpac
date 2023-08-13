@@ -10,5 +10,5 @@ const std::string RemoveAllExtensions(const std::string& filename) {
 }
 
 const std::string GetFileFromPath(const std::string& path) {
-    return path.substr(path.find_last_of("/") + 1);
+    return path.substr(path.find_last_of("/\\") + 1);
 }
