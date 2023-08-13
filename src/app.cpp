@@ -7,97 +7,113 @@
 #include "lzss.h"
 #include "vcra.h"
 #include "error.h"
+#include "ap.h"
 
 App::App(int argc, char **argv):
     argc{argc},
-argv{argv} {}
+    argv{argv} {}
 
 int App::Main() {
-    if(argc > 1) {
-        int i = 1;
+    if(argc < 2) return Usage();
 
-        while(i < argc) {
-            std::string arg = argv[i];
+    Parser argParser(argc, argv);
 
-            if(arg == "--help") {
-                Help();
+    Opt helpOpt("help", 0);
+    Opt examplesOpt("examples", 0);
+    Opt versionOpt("version", 'v');
+    Opt compressOpt("compress", 'z', 1);
+    Opt decompressOpt("decompress", 'd', 1);
+    Opt createOpt("create", 'c', AC_VARI);
+    Opt extractOpt("extract", 'x', AC_VARI);
+    Opt listOpt("list", 't', 1);
+    Opt addOpt("add", 'a', AC_VARI);
+    Opt removeOpt("remove", 'r', AC_VARI);
 
-                return 0;
-            } else if(arg == "--examples") {
-                Examples();
+    argParser.opts.push_back(helpOpt);
+    argParser.opts.push_back(examplesOpt);
+    argParser.opts.push_back(versionOpt);
+    argParser.opts.push_back(compressOpt);
+    argParser.opts.push_back(decompressOpt);
+    argParser.opts.push_back(createOpt);
+    argParser.opts.push_back(extractOpt);
+    argParser.opts.push_back(listOpt);
+    argParser.opts.push_back(addOpt);
+    argParser.opts.push_back(removeOpt);
 
-                return 0;
-            } else if(arg == "-v" || arg == "--version") {
-                Version();
+    argParser.Parse();
 
-                return 0;
-            } else if(arg == "-z" || arg == "--compress") {
-                if(argv[i + 1]) {
-                    if(Compress(argv[++i])) return 1;
-                } else return MissingArgumentError(arg);
-            } else if(arg == "-d" || arg == "--decompress") {
-                if(argv[i + 1]) {
-                    if(Decompress(argv[++i])) return 1;
-                } else return MissingArgumentError(arg);
-            } else if(arg == "-c" || arg == "--create") {
-                if(argv[i + 1]) {
-                    std::string tmp = argv[++i];
+    if(helpOpt.set) {
+        Help();
 
-                    std::vector<std::string> tmpv;
+        return 0;
+    }
+    if(examplesOpt.set) {
+        Examples();
 
-                    int j = i + 1;
-                    while(argv[j]) {
-                        if(argv[j][0] != '-') tmpv.push_back(argv[j++]);
-                        else break;
-                    }
+        return 0;
+    }
+    if(versionOpt.set) {
+        Version();
 
-                    if(Create(tmp, tmpv)) return 1;
-                } else return MissingArgumentError(arg);
-            } else if(arg == "-x" || arg == "--extract") {
-                if(argv[i + 1]) {
-                    std::string tmp = argv[++i];
-
-                    std::vector<std::string> tmpv;
-
-                    int j = i + 1;
-                    while(argv[j]) {
-                        if(argv[j][0] != '-') tmpv.push_back(argv[j++]);
-                        else break;
-                    }
-
-                    if(Extract(tmp, tmpv)) return 1;
-                } else return MissingArgumentError(arg);
-            } else if(arg == "-t" || arg == "--list") {
-                if(argv[i + 1]) {
-                    if(List(argv[++i])) return 1;
-                } else return MissingArgumentError(arg);
-            } else if(arg == "-a" || arg == "--add") {
-                std::string tmp = argv[++i];
-                std::vector<std::string> tmpv;
-
-                int j = i + 1;
-                while(argv[j]) {
-                    if(argv[j][0] != '-') tmpv.push_back(argv[j++]);
-                    else break;
-                }
-
-                if(Add(tmp, tmpv)) return 1;
-            } else if(arg == "-r" || arg == "--remove") {
-                std::string tmp = argv[++i];
-                std::vector<std::string> tmpv;
-
-                int j = i + 1;
-                while(argv[j]) {
-                    if(argv[j][0] != '-') tmpv.push_back(argv[j++]);
-                    else break;
-                }
-
-                if(Remove(tmp, tmpv)) return 1;
-            }
-
-            i++;
+        return 0;
+    }
+    if(compressOpt.set) {
+        if(compressOpt.args.size() < compressOpt.argCount)
+            return MissingArgumentError("-z");
+        else {
+            if(Compress(compressOpt.args[0])) return 1;
         }
-    } else return Usage();
+    }
+    if(decompressOpt.set) {
+        if(decompressOpt.args.size() < decompressOpt.argCount)
+            return MissingArgumentError("-d");
+        else {
+            if(Decompress(decompressOpt.args[0])) return 1;
+        }
+    }
+    if(createOpt.set) {
+        if(createOpt.args.size() < 1)
+            return MissingArgumentError("-c");
+        else {
+            std::string tmp = createOpt.args[0];
+            createOpt.args.erase(createOpt.args.begin());
+            if(Create(tmp, createOpt.args)) return 1;
+        }
+    }
+    if(extractOpt.set) {
+        if(extractOpt.args.size() < 1)
+            return MissingArgumentError("-x");
+        else {
+            std::string tmp = extractOpt.args[0];
+            extractOpt.args.erase(extractOpt.args.begin());
+            if(Extract(tmp, extractOpt.args)) return 1;
+        }
+    }
+    if(listOpt.set) {
+        if(listOpt.args.size() < listOpt.argCount)
+            return MissingArgumentError("-t");
+        else {
+            if(List(listOpt.args[0])) return 1;
+        }
+    }
+    if(addOpt.set) {
+        if(addOpt.args.size() < 1)
+            return MissingArgumentError("-a");
+        else {
+            std::string tmp = addOpt.args[0];
+            addOpt.args.erase(addOpt.args.begin());
+            if(Add(tmp, addOpt.args)) return 1;
+        }
+    }
+    if(removeOpt.set) {
+        if(removeOpt.args.size() < 1)
+            return MissingArgumentError("-r");
+        else {
+            std::string tmp = removeOpt.args[0];
+            removeOpt.args.erase(removeOpt.args.begin());
+            if(Remove(tmp, removeOpt.args)) return 1;
+        }
+    }
 
     return 0;
 }
@@ -350,6 +366,6 @@ void App::Examples() {
 }
 
 void App::Version() {
-    std::cout << "unpac-1.2\n";
-    std::cout << "made them archive tools better\n";
+    std::cout << "unpac-1.3\n";
+    std::cout << "added epic arg parsing\n";
 }
