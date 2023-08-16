@@ -1,3 +1,5 @@
+// #define USE_BRSAR
+#ifdef USE_BRSAR
 #include <iostream>
 #include <vector>
 #include "brsar.h"
@@ -125,3 +127,4 @@ int Brsar::Main(const std::string& filename) {
 
     return 0;
 }
+#endif

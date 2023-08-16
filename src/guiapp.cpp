@@ -16,7 +16,7 @@ GuiApp::GuiApp() {
 int GuiApp::Main() {
     /* styling */
     InitWindow(800, 600, "unpac");
-    if(ChangeStyle(++currentStyleIdx)) {
+    if(ChangeStyle(currentStyleIdx)) {
         std::cerr << "unpac gui error: bad style\n";
         return 1;
     }

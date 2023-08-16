@@ -401,6 +401,6 @@ void App::Examples() {
 }
 
 void App::Version() {
-    std::cout << "unpac-1.4\n";
-    std::cout << "full windows support!\n";
+    std::cout << "unpac-1.5\n";
+    std::cout << "unpac library!\n";
 }

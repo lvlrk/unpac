@@ -1,17 +1,26 @@
+INCLUDES=-Iinclude -Ilib/raygui/src -Ilib/raylib/src -Ilib/zlib/include
+ERRORS=-Wno-narrowing -Wno-enum-compare
 CXX=g++
-CXXFLAGS=-std=c++2b -Ilib/raygui/src -Ilib/raylib/src -Wno-narrowing -Wno-enum-compare
-LDFLAGS=-lraylib
+CXXFLAGS=-std=c++2b $(INCLUDES) $(ERRORS)
+LDFLAGS=-lraylib -lz
 TARGET=unpac
+LIBTARGET=lib$(TARGET).so
 
 ifeq ($(OS),Windows_NT)
 TARGET=unpac.exe
+LIBTARGET=lib$(TARGET).dll
 LDFLAGS+=-static-libstdc++
 endif
 
 all: $(TARGET)
 
 $(TARGET):
-	$(CXX) src/*.cpp $(CXXFLAGS) $(LDFLAGS) -o $(TARGET) 
+	$(CXX) src/*.cpp $(CXXFLAGS) $(LDFLAGS) -o $(TARGET)
+
+lib:
+	$(CXX) src/ap.cpp src/archive.cpp src/estream.cpp src/g03.cpp src/lzss.cpp src/util.cpp src/vcra.cpp -Iinclude -Ilib/raygui/src -fPIC -c -std=c++2b
+	make clean
+	$(CXX) -shared -o $(LIBTARGET) *.o
 
 install: $(TARGET)
 ifeq ($(OS),Windows_NT)
@@ -20,14 +29,32 @@ else
 	cp $(TARGET) /bin
 endif
 
-uninstall: $(TARGET)
+install-lib: lib$(TARGET)
 ifeq ($(OS),Windows_NT)
-	rm -f C:\\Windows\$(TARGET)
+	cp $(LIBTARGET) C:\\Windows
+else
+	cp $(LIBTARGET) /usr/lib
+
+	rm -rf /usr/include/$(TARGET)
+	mkdir /usr/include/$(TARGET)
+	cp include/ap.h include/archive.h include/estream.h include/g03.h include/lzss.h include/museum.h include/types.h include/util.h include/vcra.h /usr/include/$(TARGET) -r
+endif
+
+uninstall:
+ifeq ($(OS),Windows_NT)
+	rm C:\\Windows\$(TARGET)
 else
 	rm -f /bin/$(TARGET)
 endif
 
+uninstall-lib:
+ifeq ($(OS),Windows_NT)
+	rm C:\\Windows\$(LIBTARGET)
+else
+	rm -f /usr/lib/$(LIBTARGET)
+endif
+
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) *.o *.so *.dll
 
 .PHONY: clean all install uninstall

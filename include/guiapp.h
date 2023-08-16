@@ -25,7 +25,7 @@ private:
     std::string title = "unpac";
 
     int defaultStyleIdx = 1;
-    int currentStyleIdx = 1;
+    int currentStyleIdx = defaultStyleIdx;
     std::string currentStyle = styles[currentStyleIdx];
 
     const int fontSize = 30;
