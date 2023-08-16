@@ -1,4 +1,4 @@
-INCLUDES=-Iinclude -Ilib/raygui/src -Ilib/raylib/src -Ilib/zlib/include
+INCLUDES=-Iinclude -Ilib/zlib/include
 ERRORS=-Wno-narrowing -Wno-enum-compare
 CXX=g++
 CXXFLAGS=-std=c++2b $(INCLUDES) $(ERRORS)

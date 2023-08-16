@@ -6,3 +6,8 @@ PJ008.brsar
 styles/
 
 bin/
+
+src/guiapp.cpp
+include/guiapp.h
+lib/raylib
+lib/raygui

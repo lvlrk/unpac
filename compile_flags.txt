@@ -1,7 +1,5 @@
 # Compile flags for clangd
 
 -Iinclude
--Ilib/raylib/src 
--Ilib/raygui/src
 -Ilib/zlib/include
 -std=c++2b
