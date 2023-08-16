@@ -17,9 +17,8 @@ all: $(TARGET)
 $(TARGET):
 	$(CXX) src/*.cpp $(CXXFLAGS) $(LDFLAGS) -o $(TARGET)
 
-lib:
+libunpac:
 	$(CXX) src/ap.cpp src/archive.cpp src/estream.cpp src/g03.cpp src/lzss.cpp src/util.cpp src/vcra.cpp -Iinclude -Ilib/raygui/src -fPIC -c -std=c++2b
-	make clean
 	$(CXX) -shared -o $(LIBTARGET) *.o
 
 install: $(TARGET)
@@ -29,7 +28,7 @@ else
 	cp $(TARGET) /bin
 endif
 
-install-lib: lib$(TARGET)
+install-lib: libunpac
 ifeq ($(OS),Windows_NT)
 	cp $(LIBTARGET) C:\\Windows
 else
