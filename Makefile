@@ -1,8 +1,6 @@
-INCLUDES=-Iinclude -Ilib/zlib/include
-ERRORS=-Wno-narrowing -Wno-enum-compare
 CXX=g++
-CXXFLAGS=-std=c++2b $(INCLUDES) $(ERRORS)
-LDFLAGS=-lraylib -lz
+CXXFLAGS=-std=c++2b -Iinclude -Wno-narrowing -Wno-enum-compare
+LDFLAGS=
 TARGET=unpac
 LIBTARGET=lib$(TARGET).so
 
@@ -18,7 +16,7 @@ $(TARGET):
 	$(CXX) src/*.cpp $(CXXFLAGS) $(LDFLAGS) -o $(TARGET)
 
 libunpac:
-	$(CXX) src/ap.cpp src/archive.cpp src/estream.cpp src/g03.cpp src/lzss.cpp src/util.cpp src/vcra.cpp -Iinclude -Ilib/raygui/src -fPIC -c -std=c++2b
+	$(CXX) src/ap.cpp src/archive.cpp src/estream.cpp src/g03.cpp src/lzss.cpp src/util.cpp src/vcra.cpp -Iinclude -fPIC -c -std=c++2b
 	$(CXX) -shared -o $(LIBTARGET) *.o
 
 install: $(TARGET)

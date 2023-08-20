@@ -20,26 +20,29 @@ int App::Main() {
     Opt helpOpt("help", 0);
     Opt examplesOpt("examples", 0);
     Opt versionOpt("version", 'v');
+
     Opt compressOpt("compress", 'z', 1);
     Opt decompressOpt("decompress", 'd', 1);
-    Opt createOpt("create", 'c', AC_VARI);
+    // Opt createOpt("create", 'c', AC_VARI);
     Opt extractOpt("extract", 'x', AC_VARI);
     Opt listOpt("list", 't', 1);
-    Opt addOpt("add", 'a', AC_VARI);
-    Opt removeOpt("remove", 'r', AC_VARI);
-    Opt usageOpt("usage", 0);
+    // Opt addOpt("add", 'a', AC_VARI);
+    // Opt removeOpt("remove", 'r', AC_VARI);
+    Opt repackOpt("repack", 'r', AC_VARI);
+    // Opt usageOpt("usage", 0);
 
     argParser.opts.push_back(helpOpt);
     argParser.opts.push_back(examplesOpt);
     argParser.opts.push_back(versionOpt);
     argParser.opts.push_back(compressOpt);
     argParser.opts.push_back(decompressOpt);
-    argParser.opts.push_back(createOpt);
+    // argParser.opts.push_back(createOpt);
     argParser.opts.push_back(extractOpt);
     argParser.opts.push_back(listOpt);
-    argParser.opts.push_back(addOpt);
-    argParser.opts.push_back(removeOpt);
-    argParser.opts.push_back(usageOpt);
+    argParser.opts.push_back(repackOpt);
+    // argParser.opts.push_back(addOpt);
+    // argParser.opts.push_back(removeOpt);
+    // argParser.opts.push_back(usageOpt);
 
     argParser.Parse();
 
@@ -72,7 +75,7 @@ int App::Main() {
             if(Decompress(decompressOpt.args[0])) return 1;
         }
     }
-    if(createOpt.set) {
+    /*if(createOpt.set) {
         if(createOpt.args.size() < 1)
             return MissingArgumentError("-c");
         else {
@@ -80,7 +83,7 @@ int App::Main() {
             createOpt.args.erase(createOpt.args.begin());
             if(Create(tmp, createOpt.args)) return 1;
         }
-    }
+    }*/
     if(extractOpt.set) {
         if(extractOpt.args.size() < 1)
             return MissingArgumentError("-x");
@@ -90,6 +93,16 @@ int App::Main() {
             if(Extract(tmp, extractOpt.args)) return 1;
         }
     }
+    if(repackOpt.set) {
+        if(repackOpt.args.size() < 1)
+            return MissingArgumentError("-r");
+        else {
+            std::string tmp = repackOpt.args[0];
+            repackOpt.args.erase(repackOpt.args.begin());
+            if(Create(tmp, repackOpt.args)) return 1;
+        }
+    }
+
     if(listOpt.set) {
         if(listOpt.args.size() < listOpt.argCount)
             return MissingArgumentError("-t");
@@ -97,7 +110,7 @@ int App::Main() {
             if(List(listOpt.args[0])) return 1;
         }
     }
-    if(addOpt.set) {
+    /*if(addOpt.set) {
         if(addOpt.args.size() < 1)
             return MissingArgumentError("-a");
         else {
@@ -117,7 +130,7 @@ int App::Main() {
     }
     if(usageOpt.set) {
         return Usage();
-    }
+    }*/
 
     return 0;
 }
@@ -355,10 +368,9 @@ int App::Remove(const std::string& filename, const std::vector<std::string>& nam
 }
 
 int App::Usage() {
-    std::cout << "Usage: unpac [-vzdcxtar]\n";
+    std::cout << "Usage: unpac [-vzdxrt]\n";
     std::cout << "       unpac --help\n";
     std::cout << "       unpac --examples\n";
-    std::cout << "       unpac --usage\n";
 
     return 0;
 }
@@ -367,15 +379,12 @@ void App::Help() {
     std::cout << "Usage: unpac [option...] [file...]\n\n";
     std::cout << "     --help         print this help and exit\n";
     std::cout << "     --examples     print common usage examples and exit\n";
-    std::cout << "     --usage        print default usage and exit\n";
     std::cout << " -v, --version      output version information and exit\n";
     std::cout << " -z, --compress     compress file to lzs\n";
     std::cout << " -d, --decompress   decompress file from lzs\n";
-    std::cout << " -c, --create       create an archive\n";
     std::cout << " -x, --extract      extract files from an archive\n";
-    std::cout << " -t, --list         list files from an archive\n";
-    std::cout << " -a, --add          add files to an archive\n";
-    std::cout << " -r, --remove       remove files from an archive\n\n";
+    std::cout << " -r, --remove       remove files from an archive\n";
+    std::cout << " -t, --list         list files from an archive\n\n";
     std::cout << "enjoy this bangin' modding tool\n";
 }
 
@@ -401,6 +410,6 @@ void App::Examples() {
 }
 
 void App::Version() {
-    std::cout << "unpac-1.5\n";
-    std::cout << "unpac library!\n";
+    std::cout << "unpac-1.6\n";
+    std::cout << "better average-use-case options\n";
 }
